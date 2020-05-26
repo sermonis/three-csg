@@ -26,7 +26,9 @@ _TBD_
 
 ## Copyrights
 
-Some copyrights apply. Copyright (c) 2012 Joost Nieuwenhuijse (joost@newhouse.nl), under the MIT license. Copyright (c) 2011 Evan Wallace (http://madebyevan.com/)
+Some copyrights apply:
+- Copyright (c) 2012 Joost Nieuwenhuijse (joost@newhouse.nl), under the MIT license
+- Copyright (c) 2011 Evan Wallace (http://madebyevan.com/)
 
 ## License
 
