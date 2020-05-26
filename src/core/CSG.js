@@ -1,23 +1,17 @@
-const Tree = require('./trees');
-const Polygon = require('./math/Polygon3');
-const Plane = require('./math/Plane');
-const OrthoNormalBasis = require('./math/OrthoNormalBasis');
-
-const CAG = require('./CAG'); // FIXME: for some weird reason if CAG is imported AFTER frompolygons, a lot of things break???
-
-const Properties = require('./Properties');
-const { fromPolygons } = require('./CSGFactories'); // FIXME: circular dependency !
-
-const fixTJunctions = require('./utils/fixTJunctions');
-const canonicalize = require('./utils/canonicalize');
-const retesselate = require('./utils/retesellate');
-const { bounds } = require('./utils/csgMeasurements');
-const { projectToOrthoNormalBasis } = require('./utils/csgProjections');
-
-const { lieFlat, getTransformationToFlatLying, getTransformationAndInverseTransformationToFlatLying } = require('../api/ops-cnc');
-const { sectionCut, cutByPlane } = require('../api/ops-cuts');
-const center = require('../api/center');
-const { expand, contract, expandedShellOfCCSG } = require('../api/ops-expandContract');
+import { CAG, Tree, Properties, fromPolygons } from 'core';
+import { Polygon, Plane, OrthoNormalBasis } from 'math';
+import { fixTJunctions, canonicalize, reTessellate, bounds, csgProjectToOrthoNormalBasis } from 'utils';
+import {
+    lieFlat,
+    getTransformationToFlatLying,
+    getTransformationAndInverseTransformationToFlatLying,
+    sectionCut,
+    cutByPlane,
+    center,
+    expand,
+    contract,
+    expandedShellOfCCSG,
+} from 'api';
 
 /** Class CSG
  * Holds a binary space partition tree representing a 3D solid. Two solids can
@@ -308,7 +302,7 @@ CSG.prototype = {
 
     // ALIAS !
     reTesselated: function () {
-        return retesselate(this);
+        return reTessellate(this);
     },
 
     // ALIAS !
@@ -407,7 +401,7 @@ CSG.prototype = {
     // plane represented by the orthonormal basis
     projectToOrthoNormalBasis: function (orthobasis) {
         // FIXME:  DEPENDS ON CAG !!
-        return projectToOrthoNormalBasis(this, orthobasis);
+        return csgProjectToOrthoNormalBasis(this, orthobasis);
     },
 
     // FIXME: not finding any uses within our code ?
