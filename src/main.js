@@ -1,5 +1,5 @@
 /*
- * See LICENSE file for license.
+ * See the LICENSE file for license.
  */
 
 import { sphere, cube, roundedCube, cylinder, roundedCylinder, cylinderElliptic, polyhedron, color } from 'api';
