@@ -2,7 +2,7 @@
 
 ## Overview
 
-Constructive Solid Geometry (CSG) is a modelling technique that uses Boolean operations like union and intersection to combine 3D solids. This library implements CSG operations on meshes elegantly and concisely using BSP trees, and enabled you to build objects in [three.js](https://threejs.org/) with a couple lines of code.
+Constructive Solid Geometry (CSG) is a modelling technique that uses Boolean operations like union and intersection to combine 3D solids. This library enables you to build 3D objects in [three.js](https://threejs.org/) with a couple of lines of code with ease.
 
 ## Notes
 
