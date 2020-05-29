@@ -1,6 +1,10 @@
 # API Description - Boolean Operations
 
-## [union](#union)
+-   [union](#union)
+-   [subtract](#subtract)
+-   [intersect](#intersect)
+
+## union
 
 Creates a new object that represents the union of multiple objects
 
@@ -24,14 +28,15 @@ let output1 = input1.union([input2, input3, ...]);
 
 <!-- prettier-ignore -->
 ```js
-let box = cube({ radius: 50 }).union([
+let box = union([
+    cube({ radius: 50 }),
     translate([0, 25, 0], sphere({ radius: 10, resolution: 16 })),
 ]);
 ```
 
-## [subtract](#subtract)
+## subtract
 
-Creates a new object that represents the subtraction of multiple objects from an object
+Creates a new object that represents the subtraction of one or multiple objects from an object
 
 ```text
 ┌──────┐         ┌──────┐
@@ -53,12 +58,13 @@ let output1 = input1.subtract([input2, input3, ...]);
 
 <!-- prettier-ignore -->
 ```js
-let box = cube({ radius: 50 }).subtract([
+let box = subtract([
+    cube({ radius: 50 }),
     translate([0, 25, 0], sphere({ radius: 10, resolution: 16 })),
 ]);
 ```
 
-## [intersect](#intersect)
+## intersect
 
 Creates a new object that represents the intersection of multiple objects
 
@@ -82,6 +88,7 @@ let output1 = input2.intersect([input2, input3, ...]);
 
 <!-- prettier-ignore -->
 ```js
-let box = cube({ radius: 50 }).intersect([
+let box = intersect([
+    cube({ radius: 50 }),
     translate([0, 25, 0], sphere({ radius: 10, resolution: 16 })),
 ]);
