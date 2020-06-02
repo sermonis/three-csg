@@ -8,7 +8,7 @@ Constructive Solid Geometry (CSG) is a modelling technique that uses Boolean ope
 
 This is based on the excellent [jscad/csg.js](https://github.com/jscad/csg.js) library.
 
-This is a work in progress, it does not work yet.
+This is a work in progress, the code is not optimised.
 
 ## Installation
 
