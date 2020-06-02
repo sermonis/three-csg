@@ -20,7 +20,7 @@ _TBD_
 
 ## Examples
 
--   [Example #2 - Dice](https://github.com/SebiTimeWaster/three-csg/blob/master/examples/examples2.html)
+-   [Example #2 - Dice](https://github.com/SebiTimeWaster/three-csg/blob/master/examples/example2.html)
 
 ## API Description
 
