@@ -1,5 +1,4 @@
 import { IsFloat } from 'utils';
-import { Vector2D } from 'math';
 
 /** Class Vector
  * Represents a 3D vector with X, Y, Z coordinates.
@@ -29,10 +28,6 @@ const Vector = function (x, y, z) {
                     this._x = x._x;
                     this._y = x._y;
                     this._z = x._z;
-                } else if (x instanceof Vector2D) {
-                    this._x = x._x;
-                    this._y = x._y;
-                    this._z = 0;
                 } else if (x instanceof Array) {
                     if (x.length < 2 || x.length > 3) {
                         ok = false;
@@ -176,14 +171,6 @@ Vector.prototype = {
     // Returns a new Vector
     multiply4x4: function (matrix4x4) {
         return matrix4x4.leftMultiply1x3Vector(this);
-    },
-
-    transform: function (matrix4x4) {
-        return matrix4x4.leftMultiply1x3Vector(this);
-    },
-
-    toString: function () {
-        return '(' + this._x.toFixed(5) + ', ' + this._y.toFixed(5) + ', ' + this._z.toFixed(5) + ')';
     },
 
     // find a vector that is somewhat perpendicular to this one

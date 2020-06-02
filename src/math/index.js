@@ -1,14 +1,4 @@
-export { default as Line2D } from './Line2D';
-export { default as Line3D } from './Line3D';
-export { default as Matrix4x4 } from './Matrix4x4';
-export { default as OrthoNormalBasis } from './OrthoNormalBasis';
 export { default as Plane } from './Plane';
 export { default as Polygon } from './Polygon';
-export { default as Side } from './Side';
-export { sin, cos, asin, acos, tan, atan, atan2, min, max, rands, lookup, sign, round } from './utils';
 export { default as Vector } from './Vector';
-export { default as Vector2D } from './Vector2D';
 export { default as Vertex } from './Vertex';
-export { default as Vertex2D } from './Vertex2D';
-export { default as linesIntersect } from './linesIntersect';
-export { default as reTesselateCoplanarPolygons } from './reTesselateCoplanarPolygons';

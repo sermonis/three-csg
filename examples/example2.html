@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <title>three-csg example #2</title>
+        <script src="./lib/three.min.js"></script>
+        <script type="module">
+            import CSG from '../dist/three-csg.min.js';
+
+            window.addEventListener('load', () => {
+                const loadingBar = document.querySelector('.loading');
+                let loadingCount = 0;
+                const updateLoadingBar = () => {
+                    loadingCount++;
+                    loadingBar.querySelector('div').style.width = `${(loadingCount * 490) / 34}px`;
+                    if (loadingCount === 34) loadingBar.remove();
+                };
+                const scene = new THREE.Scene();
+                const ninetyDegrees = Math.PI / 2;
+                const moduloSwitch = (x, interval) => (x % (interval * 2) < interval ? 42.5 : -42.5);
+
+                /*
+                 * create a dice with three-csg
+                 */
+
+                // data where the dimples should be set on the dice
+                const dimpleData = [
+                    [-67, 25, 25], // face 2
+                    [-67, -25, -25],
+                    [0, 0, 67], // face 3
+                    [-25, 25, 67],
+                    [25, -25, 67],
+                    [25, 25, -67], // face 4
+                    [-25, 25, -67],
+                    [25, -25, -67],
+                    [-25, -25, -67],
+                    [67, 0, 0], // face 5
+                    [67, 25, 25],
+                    [67, -25, 25],
+                    [67, 25, -25],
+                    [67, -25, -25],
+                    [20, 67, 25, true], // face 6
+                    [-20, 67, -25],
+                    [-20, 67, 25],
+                    [20, 67, -25],
+                    [20, 67, 0],
+                    [-20, 67, 0],
+                    [0, -67, 0], // face 1
+                ];
+
+                // we create a couple of primitives and colors with threejs
+                const sphereDimple = new THREE.SphereBufferGeometry(19.5, 32, 16);
+                const sphereCorner = new THREE.SphereBufferGeometry(7.5, 32, 16);
+                const cylinder = new THREE.CylinderBufferGeometry(7.5, 7.5, 85, 32);
+                const box = new THREE.BoxBufferGeometry(100, 85, 85);
+                const dimpleColor = new THREE.Color(0.25, 0.25, 0.25);
+
+                // we create the inner box structure that will be surrounded by rounded corners
+                // we reuse the threejs box geometry by cloning it
+                let cube = CSG.union([box, box.clone().rotateY(ninetyDegrees), box.clone().rotateZ(ninetyDegrees)]);
+
+                // we create the rounded corners out of spheres and cylinders by
+                // we reuse all the geometries by running the union operations in steps and moving the threejs geometries around in between
+                const createRoundedCube = (x) => {
+                    const operations = [cube];
+                    if (x < 8) operations.push(sphereCorner.center().translate(moduloSwitch(x, 1), moduloSwitch(x, 2), moduloSwitch(x, 4)));
+                    if (x < 4) operations.push(cylinder.center().translate(moduloSwitch(x, 1), 0, moduloSwitch(x, 2)));
+                    if (x > 3 && x < 8) operations.push(cylinder.center().translate(moduloSwitch(x, 1), moduloSwitch(x, 2), 0));
+                    if (x > 7) operations.push(cylinder.center().translate(0, moduloSwitch(x, 1), moduloSwitch(x, 2)));
+                    cube = CSG.union(operations);
+                    if (x === 3) cylinder.rotateX(ninetyDegrees);
+                    if (x === 7) cylinder.rotateY(ninetyDegrees);
+                };
+
+                // we cut out the dimples on the cube and set the colors the dimple vertices shoud have
+                // we reuse all the geometries by running the subtract operations in steps and moving the threejs sphere geometry around in between
+                const createDimples = (dimple) => {
+                    if (dimple[3]) sphereDimple.rotateX(ninetyDegrees);
+                    cube = CSG.subtract([cube, sphereDimple.center().translate(dimple[0], dimple[1], dimple[2])], [null, dimpleColor]);
+                };
+
+                // we generate the three BufferGeometry and the mesh and insert it into the scene
+                const putDiceInScene = () => {
+                    const diceGeometry = CSG.BufferGeometry(cube);
+                    const dice = new THREE.Mesh(
+                        diceGeometry,
+                        new THREE.MeshStandardMaterial({
+                            color: 0xffffff0,
+                            roughness: 0.0,
+                            metalness: 0.0,
+                            vertexColors: THREE.FaceColors,
+                        })
+                    );
+                    scene.add(dice);
+                };
+
+                /*
+                 * create the rest of the scene and mouse listeners
+                 */
+
+                const start = new Date().getTime();
+                let x = 0;
+                const steps = () => {
+                    updateLoadingBar();
+                    if (x < 12) createRoundedCube(x);
+                    if (x > 11 && x < 33) createDimples(dimpleData[x - 12]);
+                    if (x == 33) putDiceInScene();
+                    if (x < 33) setTimeout(steps, 0);
+                    else document.querySelector('.time').innerHTML = (new Date().getTime() - start) / 1000;
+                    x++;
+                };
+                steps();
+                let mouseX = 0;
+                let mouseY = 0;
+                let distanceFromZeroPoint = 300;
+                const canvas = document.querySelector('#canvas');
+                canvas.width = document.documentElement.clientWidth;
+                canvas.height = document.documentElement.clientHeight;
+                const renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true, antialias: true });
+                const camera = new THREE.PerspectiveCamera(50, canvas.width / canvas.height, 1, 5000);
+                const light1 = new THREE.AmbientLight(0xffffff, 0.4);
+                const light2 = new THREE.DirectionalLight(0xffffff, 0.6);
+                const animate = () => {
+                    const mouseXProp = 1 - ((mouseX / canvas.width) * 1.4 - 0.2);
+                    const mouseYProp = (mouseY / canvas.height) * 1.4 - 0.2;
+                    const movementX = Math.max(0, Math.min(1, mouseXProp)) * Math.PI * 2 - Math.PI;
+                    const movementY = Math.max(0, Math.min(1, mouseYProp)) * Math.PI - Math.PI / 2;
+                    camera.position.x = Math.sin(movementX) * Math.cos(movementY) * distanceFromZeroPoint;
+                    camera.position.z = Math.cos(movementX) * Math.cos(movementY) * distanceFromZeroPoint;
+                    camera.position.y = Math.sin(movementY) * distanceFromZeroPoint;
+                    camera.lookAt(scene.position);
+
+                    renderer.render(scene, camera);
+                    requestAnimationFrame(animate);
+                };
+                renderer.setSize(canvas.width, canvas.height);
+                scene.add(light1);
+                light2.position.set(190, 200, 1000);
+                scene.add(light2);
+                document.addEventListener('mousemove', (event) => {
+                    mouseX = event.clientX;
+                    mouseY = event.clientY;
+                });
+                document.addEventListener(
+                    'wheel',
+                    (event) => {
+                        distanceFromZeroPoint += event.deltaY;
+                        distanceFromZeroPoint = Math.max(distanceFromZeroPoint, 150);
+                        event.preventDefault();
+                    },
+                    { passive: false }
+                );
+                animate();
+            });
+        </script>
+        <style>
+            * {
+                padding: 0;
+                margin: 0;
+                background-color: #000;
+                overscroll-behavior: none;
+                overflow: hidden;
+            }
+            div {
+                position: absolute;
+                left: 0;
+                top: 0;
+                z-index: 1;
+                color: #ffffff;
+            }
+            .info {
+                padding: 10px 20px;
+            }
+            .loading {
+                left: calc(50% - 250px);
+                top: calc(50% - 25px);
+                border: 2px solid #fff;
+                width: 500px;
+                height: 50px;
+            }
+            .loading div {
+                left: 5px;
+                top: 5px;
+                width: 0px;
+                height: 40px;
+                background-color: #fff;
+            }
+        </style>
+    </head>
+    <body>
+        <canvas id="canvas"></canvas>
+        <div class="info">
+            Move the mouse to rotate the camera,<br />Use the mouse wheel to zoom.<br />Generated in <span class="time">-</span> seconds.
+        </div>
+        <div class="loading"><div></div></div>
+    </body>
+</html>

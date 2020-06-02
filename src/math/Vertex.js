@@ -40,16 +40,6 @@ Vertex.prototype = {
         var newpos = this.pos.lerp(other.pos, t);
         return new Vertex(newpos);
     },
-
-    // Affine transformation of vertex. Returns a new Vertex
-    transform: function (matrix4x4) {
-        var newpos = this.pos.multiply4x4(matrix4x4);
-        return new Vertex(newpos);
-    },
-
-    toString: function () {
-        return this.pos.toString();
-    },
 };
 
 export default Vertex;

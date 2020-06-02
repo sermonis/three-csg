@@ -18,11 +18,13 @@ _TBD_
 
 _TBD_
 
+## Examples
+
+-   [Example #2 - Dice](https://github.com/SebiTimeWaster/three-csg/blob/master/examples/examples2.html)
+
 ## API Description
 
--   [Primitives](https://github.com/SebiTimeWaster/three-csg/blob/master/docs/Primitives.md)
 -   [Boolean Operations](https://github.com/SebiTimeWaster/three-csg/blob/master/docs/BooleanOperations.md)
--   [Transformations](https://github.com/SebiTimeWaster/three-csg/blob/master/docs/Transformations.md)
 
 ## Copyrights
 

@@ -1,4 +1,4 @@
-import { Vector, Vertex, Matrix4x4, Plane } from 'math';
+import { Vector, Plane } from 'math';
 import { CONSTANTS } from 'utils';
 
 /** Class Polygon
@@ -60,10 +60,6 @@ let Polygon = function (vertices, shared, plane) {
 };
 
 Polygon.prototype = {
-    translate: function (offset) {
-        return this.transform(Matrix4x4.translation(offset));
-    },
-
     // returns an array with a Vector3D (center point) and a radius
     boundingSphere: function () {
         if (!this.cachedBoundingSphere) {
@@ -103,8 +99,7 @@ Polygon.prototype = {
             return v.flipped();
         });
         newvertices.reverse();
-        let newplane = this.plane.flipped();
-        return new Polygon(newvertices, this.shared, newplane);
+        return new Polygon(newvertices, this.shared);
     },
 };
 

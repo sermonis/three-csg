@@ -29,8 +29,8 @@ let output = union([input1, input2, ...]);
 <!-- prettier-ignore -->
 ```js
 let box = union([
-    cube({ radius: 50 }),
-    translate([0, 25, 0], sphere({ radius: 10, resolution: 16 })),
+    new THREE.BoxBufferGeometry(100, 100, 100),
+    new THREE.SphereBufferGeometry(50, 32, 16).translate(50, 50, 0),
 ]);
 ```
 
@@ -59,8 +59,8 @@ let output = subtract([input1, input2, ...]);
 <!-- prettier-ignore -->
 ```js
 let box = subtract([
-    cube({ radius: 50 }),
-    translate([0, 25, 0], sphere({ radius: 10, resolution: 16 })),
+    new THREE.BoxBufferGeometry(100, 100, 100),
+    new THREE.SphereBufferGeometry(50, 32, 16).translate(50, 50, 0),
 ]);
 ```
 
@@ -89,7 +89,7 @@ let output = intersect([input1, input2, ...]);
 <!-- prettier-ignore -->
 ```js
 let box = intersect([
-    cube({ radius: 50 }),
-    translate([0, 25, 0], sphere({ radius: 10, resolution: 16 })),
+    new THREE.BoxBufferGeometry(100, 100, 100),
+    new THREE.SphereBufferGeometry(50, 32, 16).translate(50, 50, 0),
 ]);
 ```

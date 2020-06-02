@@ -1,5 +1,5 @@
-import { Tree, Properties, fromPolygons } from 'core';
-import { canonicalize, reTessellate, bounds } from 'utils';
+import { Tree, Properties } from 'core';
+import { Vector } from 'math';
 
 /** Class CSG
  * Holds a binary space partition tree representing a 3D solid. Two solids can
@@ -9,8 +9,6 @@ import { canonicalize, reTessellate, bounds } from 'utils';
 let CSG = function () {
     this.polygons = [];
     this.properties = new Properties();
-    this.isCanonicalized = true;
-    this.isRetesselated = true;
 };
 
 CSG.prototype = {
@@ -45,16 +43,14 @@ CSG.prototype = {
         for (i = 1; i < csgs.length; i += 2) {
             csgs.push(csgs[i - 1].unionSub(csgs[i]));
         }
-        return csgs[i - 1].reTesselated().canonicalized();
+        return csgs[i - 1];
     },
 
-    unionSub: function (csg, retesselate, canonicalize) {
+    unionSub: function (csg) {
         if (!this.mayOverlap(csg)) {
             let newpolygons = this.polygons.concat(csg.polygons);
-            let result = fromPolygons(newpolygons);
+            let result = this.fromPolygons(newpolygons);
             result.properties = this.properties._merge(csg.properties);
-            result.isCanonicalized = this.isCanonicalized && csg.isCanonicalized;
-            result.isRetesselated = this.isRetesselated && csg.isRetesselated;
             return result;
         } else {
             let a = new Tree(this.polygons);
@@ -68,10 +64,8 @@ CSG.prototype = {
             b.invert();
 
             let newpolygons = a.allPolygons().concat(b.allPolygons());
-            let result = fromPolygons(newpolygons);
+            let result = this.fromPolygons(newpolygons);
             result.properties = this.properties._merge(csg.properties);
-            if (retesselate) result = result.reTesselated();
-            if (canonicalize) result = result.canonicalized();
             return result;
         }
     },
@@ -108,7 +102,7 @@ CSG.prototype = {
         return result;
     },
 
-    subtractSub: function (csg, retesselate, canonicalize) {
+    subtractSub: function (csg) {
         let a = new Tree(this.polygons);
         let b = new Tree(csg.polygons);
         a.invert();
@@ -116,10 +110,8 @@ CSG.prototype = {
         b.clipTo(a, true);
         a.addPolygons(b.allPolygons());
         a.invert();
-        let result = fromPolygons(a.allPolygons());
+        let result = this.fromPolygons(a.allPolygons());
         result.properties = this.properties._merge(csg.properties);
-        if (retesselate) result = result.reTesselated();
-        if (canonicalize) result = result.canonicalized();
         return result;
     },
 
@@ -155,7 +147,7 @@ CSG.prototype = {
         return result;
     },
 
-    intersectSub: function (csg, retesselate, canonicalize) {
+    intersectSub: function (csg) {
         let a = new Tree(this.polygons);
         let b = new Tree(csg.polygons);
         a.invert();
@@ -165,26 +157,43 @@ CSG.prototype = {
         b.clipTo(a);
         a.addPolygons(b.allPolygons());
         a.invert();
-        let result = fromPolygons(a.allPolygons());
+        let result = this.fromPolygons(a.allPolygons());
         result.properties = this.properties._merge(csg.properties);
-        if (retesselate) result = result.reTesselated();
-        if (canonicalize) result = result.canonicalized();
         return result;
     },
 
-    // ALIAS !
-    canonicalized: function () {
-        return canonicalize(this);
+    fromPolygons: function (polygons) {
+        let csg = new CSG();
+        csg.polygons = polygons;
+        return csg;
     },
 
-    // ALIAS !
-    reTesselated: function () {
-        return reTessellate(this);
+    bounds: function (csg = this) {
+        if (!csg.cachedBoundingBox) {
+            let minpoint = new Vector(0, 0, 0);
+            let maxpoint = new Vector(0, 0, 0);
+            let polygons = csg.polygons;
+            let numpolygons = polygons.length;
+            for (let i = 0; i < numpolygons; i++) {
+                let polygon = polygons[i];
+                let myBounds = polygon.boundingBox();
+                if (i === 0) {
+                    minpoint = myBounds[0];
+                    maxpoint = myBounds[1];
+                } else {
+                    minpoint = minpoint.min(myBounds[0]);
+                    maxpoint = maxpoint.max(myBounds[1]);
+                }
+            }
+            // FIXME: not ideal, we are mutating the input, we need to move some of it out
+            csg.cachedBoundingBox = [minpoint, maxpoint];
+        }
+        return csg.cachedBoundingBox;
     },
 
     // ALIAS !
     getBounds: function () {
-        return bounds(this);
+        return this.bounds();
     },
 
     /** returns true if there is a possibility that the two solids overlap
@@ -196,8 +205,8 @@ CSG.prototype = {
         if (this.polygons.length === 0 || csg.polygons.length === 0) {
             return false;
         } else {
-            let mybounds = bounds(this);
-            let otherbounds = bounds(csg);
+            let mybounds = this.bounds();
+            let otherbounds = this.bounds(csg);
             if (mybounds[1].x < otherbounds[0].x) return false;
             if (mybounds[0].x > otherbounds[1].x) return false;
             if (mybounds[1].y < otherbounds[0].y) return false;

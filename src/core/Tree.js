@@ -498,15 +498,6 @@ Node.prototype = {
             args = stack.pop();
         } while (typeof args !== 'undefined');
     },
-
-    getParentPlaneNormals: function (normals, maxdepth) {
-        if (maxdepth > 0) {
-            if (this.parent) {
-                normals.push(this.parent.plane.normal);
-                this.parent.getParentPlaneNormals(normals, maxdepth - 1);
-            }
-        }
-    },
 };
 
 export default Tree;
