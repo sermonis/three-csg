@@ -28,7 +28,7 @@ let output = union([input1, input2, ...]);
 
 <!-- prettier-ignore -->
 ```js
-let box = union([
+let box = CSG.union([
     new THREE.BoxBufferGeometry(100, 100, 100),
     new THREE.SphereBufferGeometry(50, 32, 16).translate(50, 50, 0),
 ]);
@@ -58,7 +58,7 @@ let output = subtract([input1, input2, ...]);
 
 <!-- prettier-ignore -->
 ```js
-let box = subtract([
+let box = CSG.subtract([
     new THREE.BoxBufferGeometry(100, 100, 100),
     new THREE.SphereBufferGeometry(50, 32, 16).translate(50, 50, 0),
 ]);
@@ -88,7 +88,7 @@ let output = intersect([input1, input2, ...]);
 
 <!-- prettier-ignore -->
 ```js
-let box = intersect([
+let box = CSG.intersect([
     new THREE.BoxBufferGeometry(100, 100, 100),
     new THREE.SphereBufferGeometry(50, 32, 16).translate(50, 50, 0),
 ]);
