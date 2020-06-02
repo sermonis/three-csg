@@ -20,7 +20,9 @@ _TBD_
 
 ## API Description
 
+-   [Primitives](https://github.com/SebiTimeWaster/three-csg/blob/master/docs/Primitives.md)
 -   [Boolean Operations](https://github.com/SebiTimeWaster/three-csg/blob/master/docs/BooleanOperations.md)
+-   [Transformations](https://github.com/SebiTimeWaster/three-csg/blob/master/docs/Transformations.md)
 
 ## Copyrights
 

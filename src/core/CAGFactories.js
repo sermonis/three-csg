@@ -125,19 +125,6 @@ const fromNestedPointsArray = function (points) {
     return cag;
 };
 
-/** Reconstruct a CAG from an object with identical property names.
- * @param {Object} obj - anonymous object, typically from JSON
- * @returns {CAG} new CAG object
- */
-const fromObject = function (obj) {
-    let sides = obj.sides.map(function (s) {
-        return Side.fromObject(s);
-    });
-    let cag = fromSides(sides);
-    cag.isCanonicalized = obj.isCanonicalized;
-    return cag;
-};
-
 /** Construct a CAG from a list of points (a polygon).
  * Like fromPoints() but does not check if the result is a valid polygon.
  * The points MUST rotate counter clockwise.
@@ -170,35 +157,4 @@ const fromPath2 = function (path) {
     return fromPoints(path.getPoints());
 };
 
-/** Reconstruct a CAG from the output of toCompactBinary().
- * @param {CompactBinary} bin - see toCompactBinary()
- * @returns {CAG} new CAG object
- */
-const fromCompactBinary = function (bin) {
-    if (bin['class'] !== 'CAG') throw new Error('Not a CAG');
-    let vertices = [];
-    let vertexData = bin.vertexData;
-    let numvertices = vertexData.length / 2;
-    let arrayindex = 0;
-    for (let vertexindex = 0; vertexindex < numvertices; vertexindex++) {
-        let x = vertexData[arrayindex++];
-        let y = vertexData[arrayindex++];
-        let pos = new Vector2D(x, y);
-        let vertex = new Vertex2D(pos);
-        vertices.push(vertex);
-    }
-    let sides = [];
-    let numsides = bin.sideVertexIndices.length / 2;
-    arrayindex = 0;
-    for (let sideindex = 0; sideindex < numsides; sideindex++) {
-        let vertexindex0 = bin.sideVertexIndices[arrayindex++];
-        let vertexindex1 = bin.sideVertexIndices[arrayindex++];
-        let side = new Side(vertices[vertexindex0], vertices[vertexindex1]);
-        sides.push(side);
-    }
-    let cag = fromSides(sides);
-    cag.isCanonicalized = true;
-    return cag;
-};
-
-export { fromSides, fromPoints, fromPointsNoCheck, fromPath2, fromFakeCSG, fromCompactBinary };
+export { fromSides, fromPoints, fromPointsNoCheck, fromPath2, fromFakeCSG };

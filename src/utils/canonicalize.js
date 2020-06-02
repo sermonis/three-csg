@@ -1,5 +1,4 @@
-import { CONSTANTS } from 'utils';
-import { FuzzyCSGFactory, FuzzyCAGFactory, fromPolygons, fromSides } from 'core';
+import { FuzzyCSGFactory, fromPolygons } from 'core';
 
 /**
  * Returns a cannoicalized version of the input csg/cag : ie every very close
@@ -13,11 +12,7 @@ const canonicalize = function (csgOrCAG, options) {
     if (csgOrCAG.isCanonicalized) {
         return csgOrCAG;
     } else {
-        if ('sides' in csgOrCAG) {
-            return canonicalizeCAG(csgOrCAG, options);
-        } else {
-            return canonicalizeCSG(csgOrCAG, options);
-        }
+        return canonicalizeCSG(csgOrCAG, options);
     }
 };
 
@@ -42,17 +37,6 @@ const canonicalizeCSG = function (csg, options) {
     }
 };
 
-const canonicalizeCAG = function (cag, options) {
-    if (cag.isCanonicalized) {
-        return cag;
-    } else {
-        let factory = new FuzzyCAGFactory();
-        let result = CAGFromCAGFuzzyFactory(factory, cag);
-        result.isCanonicalized = true;
-        return result;
-    }
-};
-
 const CSGFromCSGFuzzyFactory = function (factory, sourcecsg) {
     let _this = factory;
     let newpolygons = [];
@@ -64,19 +48,6 @@ const CSGFromCSGFuzzyFactory = function (factory, sourcecsg) {
         }
     });
     return fromPolygons(newpolygons);
-};
-
-const CAGFromCAGFuzzyFactory = function (factory, sourcecag) {
-    let _this = factory;
-    let newsides = sourcecag.sides
-        .map(function (side) {
-            return _this.getSide(side);
-        })
-        // remove bad sides (mostly a user input issue)
-        .filter(function (side) {
-            return side.length() > CONSTANTS.EPS;
-        });
-    return fromSides(newsides);
 };
 
 export default canonicalize;

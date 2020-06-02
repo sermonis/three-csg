@@ -1,4 +1,3 @@
-import { isCAG } from 'utils';
 // boolean operations
 
 // FIXME should this be lazy ? in which case, how do we deal with 2D/3D combined
@@ -30,16 +29,8 @@ function union() {
     o = a[i++];
 
     // TODO: add option to be able to set this?
-    if (typeof a[i] === 'object' && isCAG(a[i]) && options.extrude2d) {
-        o = a[i].extrude({ offset: [0, 0, 0.1] }); // -- convert a 2D shape to a thin solid, note: do not a[i] = a[i].extrude()
-    }
     for (; i < a.length; i++) {
-        let obj = a[i];
-
-        if (typeof a[i] === 'object' && isCAG(a[i]) && options.extrude2d) {
-            obj = a[i].extrude({ offset: [0, 0, 0.1] }); // -- convert a 2D shape to a thin solid:
-        }
-        o = o.union(obj);
+        o = o.union(a[i]);
     }
     return o;
 }
@@ -61,11 +52,7 @@ function difference() {
     let a = arguments;
     if (a[0].length) a = a[0];
     for (object = a[i++]; i < a.length; i++) {
-        if (isCAG(a[i])) {
-            object = object.subtract(a[i]);
-        } else {
-            object = object.subtract(a[i].setColor(1, 1, 0)); // -- color the cuts
-        }
+        object = object.subtract(a[i]); // -- color the cuts
     }
     return object;
 }
@@ -86,11 +73,7 @@ function intersection() {
     let a = arguments;
     if (a[0].length) a = a[0];
     for (object = a[i++]; i < a.length; i++) {
-        if (isCAG(a[i])) {
-            object = object.intersect(a[i]);
-        } else {
-            object = object.intersect(a[i].setColor(1, 1, 0)); // -- color the cuts
-        }
+        object = object.intersect(a[i]); // -- color the cuts
     }
     return object;
 }

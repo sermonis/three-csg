@@ -35,14 +35,12 @@ const volume = function (csg) {
     let result = csg.toTriangles().map(function (triPoly) {
         return triPoly.getTetraFeatures(['volume']);
     });
-    console.log('volume', result);
 };
 
 const area = function (csg) {
     let result = csg.toTriangles().map(function (triPoly) {
         return triPoly.getTetraFeatures(['area']);
     });
-    console.log('area', result);
 };
 
 export { bounds, volume, area };

@@ -1,11 +1,8 @@
-export { addTransformationMethodsToPrototype, addCenteringToPrototype } from './Mutators';
-export { Connector, ConnectorList } from './Connectors';
 export { default as CAG } from './CAG';
 export { default as CSG } from './CSG';
-export { default as FuzzyCAGFactory } from './FuzzyCAGFactory';
 export { default as FuzzyCSGFactory } from './FuzzyCSGFactory';
 export { default as FuzzyFactory } from './FuzzyFactory';
 export { default as Properties } from './Properties';
 export { default as Tree } from './Tree';
-export { fromPolygons, fromSlices } from './CSGFactories';
-export { fromSides, fromPoints, fromPointsNoCheck, fromPath2, fromFakeCSG, fromCompactBinary } from './CAGFactories';
+export { fromPolygons } from './CSGFactories';
+export { fromPoints } from './CAGFactories';

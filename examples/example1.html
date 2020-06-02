@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <title>Dice by TimeWaster</title>
+        <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0" />
+        <script src="../lib/three.min.js"></script>
+        <script src="../lib/GLTFLoader.min.js"></script>
+        <script src="../lib/oimo.min.js"></script>
+        <script type="module">
+            import CSG from '../../three-csg/dist/three-csg.js';
+
+            window.addEventListener('load', () => {
+                /*
+                 *
+                 *
+                 *
+                 *
+                 *
+                 */
+
+                const dice = CSG.BufferGeometry(
+                    CSG.union([
+                        CSG.difference(
+                            [
+                                new THREE.CylinderBufferGeometry(50, 50, 100, 32),
+                                new THREE.CylinderBufferGeometry(40, 40, 100, 32).rotateX(Math.PI / 2),
+                            ],
+                            [new THREE.Color(1, 0, 0), new THREE.Color(0, 1, 0)]
+                        ),
+                        new THREE.BoxBufferGeometry(50, 50, 50).translate(0, 50, 0),
+                    ])
+                );
+
+                //new THREE.SphereBufferGeometry( 5, 32, 32 )
+
+                // const mysphere = sphere({ radius: 19.5, resolution: 32 });
+                // const getDimple = (position, rotate = false) => {
+                //     let matrix = new Matrix4x4();
+
+                //     if (rotate) matrix = matrix.multiply(Matrix4x4.rotationX(90));
+                //     matrix = matrix.multiply(Matrix4x4.translation(position));
+                //     return color([0.5, 0.5, 0.5], mysphere.transform(matrix));
+                // };
+                // const dice = color([1, 1, 1], roundedCube({ radius: 50, roundradius: 7.5, resolution: 32 })).subtract([
+                //     // face 1
+                //     getDimple([0, -67, 0]),
+                //     // face 2
+                //     getDimple([-67, 25, 25]),
+                //     getDimple([-67, -25, -25]),
+                //     // face 3
+                //     getDimple([0, 0, 67], true),
+                //     getDimple([-25, 25, 67], true),
+                //     getDimple([25, -25, 67], true),
+                //     // face 4
+                //     getDimple([25, 25, -67], true),
+                //     getDimple([-25, 25, -67], true),
+                //     getDimple([25, -25, -67], true),
+                //     getDimple([-25, -25, -67], true),
+                //     // face 6
+                //     getDimple([20, 67, 25]),
+                //     getDimple([-20, 67, -25]),
+                //     getDimple([-20, 67, 25]),
+                //     getDimple([20, 67, -25]),
+                //     getDimple([20, 67, 0]),
+                //     getDimple([-20, 67, 0]),
+                //     // face 5
+                //     getDimple([67, 0, 0]),
+                //     getDimple([67, 25, 25]),
+                //     getDimple([67, -25, 25]),
+                //     getDimple([67, 25, -25]),
+                //     getDimple([67, -25, -25]),
+                // ]);
+
+                /*
+                 *
+                 *
+                 *
+                 *
+                 *
+                 */
+
+                // mutable variables
+                let mouseX = 0,
+                    mouseY = 0,
+                    distanceFromZeroPoint = 1500;
+                // get canvas
+                const canvas = document.querySelector('#logoCanvas');
+                canvas.width = document.documentElement.clientWidth;
+                canvas.height = document.documentElement.clientHeight;
+                // create scene and light
+                const scene = new THREE.Scene(),
+                    renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true, antialias: true }),
+                    camera = new THREE.PerspectiveCamera(50, canvas.width / canvas.height, 1, 5000),
+                    light1 = new THREE.AmbientLight(0xffeecc, 0.4),
+                    light2 = new THREE.DirectionalLight(0xffffee, 0.6),
+                    // create meshes and materials
+                    textureCube = new THREE.CubeTextureLoader().load(['posx.jpg', 'negx.jpg', 'posy.jpg', 'negy.jpg', 'posz.jpg', 'negz.jpg']),
+                    ground = new THREE.Mesh(
+                        new THREE.BoxGeometry(1000, 1000, 1000),
+                        new THREE.MeshPhongMaterial({
+                            map: new THREE.TextureLoader().load('felt.png'),
+                            normalMap: new THREE.TextureLoader().load('felt-normal.png'),
+                            normalScale: new THREE.Vector2(10.0, 10.0),
+                            reflectivity: 0.0,
+                            shininess: 15.0,
+                            emissive: 0x002200,
+                        })
+                    ),
+                    materialData = {
+                        //color: 0xff9999, // 0xfffff0
+                        envMap: textureCube,
+                        envMapIntensity: 2.0,
+                        roughness: 0.0,
+                        metalness: 0.0,
+                        vertexColors: THREE.FaceColors,
+                        // side: THREE.DoubleSide,
+                    },
+                    cubeR = new THREE.Mesh(dice, new THREE.MeshStandardMaterial(materialData)),
+                    cubeG = new THREE.Mesh(dice, new THREE.MeshStandardMaterial(Object.assign({}, materialData, { color: 0x99ff99 }))),
+                    cubeB = new THREE.Mesh(dice, new THREE.MeshStandardMaterial(Object.assign({}, materialData, { color: 0x99aaff }))),
+                    // create physics world
+                    getRand = (range) => Math.random() * range - range / 2,
+                    world = new OIMO.World({
+                        timestep: 1 / 30,
+                        iterations: 8,
+                        broadphase: 2,
+                        worldscale: 1,
+                        random: true,
+                        info: false,
+                        gravity: [0, -980, 0],
+                    }),
+                    floorData = {
+                        type: 'box',
+                        size: [1000, 10, 1000],
+                        pos: [0, -5, 0],
+                        rot: [0, 0, 0],
+                        move: false,
+                        friction: 1.0,
+                    },
+                    cubeData = {
+                        type: 'box',
+                        size: [100, 100, 100],
+                        pos: [0, 300, 0],
+                        rot: [getRand(200), getRand(200), getRand(200)],
+                        move: true,
+                        density: 1.5,
+                        friction: 0.5,
+                        restitution: 0.5,
+                    },
+                    floor = world.add(floorData),
+                    sideBack = world.add(Object.assign({}, floorData, { size: [1000, 500, 10], pos: [0, 250, -505] })),
+                    sideFront = world.add(Object.assign({}, floorData, { size: [1000, 50, 10], pos: [0, 25, 505] })),
+                    sideLeft = world.add(Object.assign({}, floorData, { size: [10, 500, 1000], pos: [-505, 250, 0] })),
+                    sideRight = world.add(Object.assign({}, floorData, { size: [10, 500, 1000], pos: [505, 250, 0] })),
+                    physCubeR = world.add(cubeData),
+                    physCubeG = world.add(Object.assign({}, cubeData, { pos: [-200, 300, 0], rot: [getRand(200), getRand(200), getRand(200)] })),
+                    physCubeB = world.add(Object.assign({}, cubeData, { pos: [200, 300, 0], rot: [getRand(200), getRand(200), getRand(200)] })),
+                    // reinitialize dice with random params for "throw"
+                    throwCubes = (cube) => {
+                        [physCubeR, physCubeG, physCubeB]
+                            .sort(() => 0.5 - Math.random())
+                            .forEach((cube, num) => {
+                                cube.position.set(num * 250 - 250, 500, 1600 + getRand(200));
+                                cube.rotation.set(getRand(360) + 180, getRand(360) + 180, getRand(360) + 180);
+                                cube.linearVelocity.set(0, 0, -1500 + getRand(500));
+                                cube.angularVelocity.set(getRand(15), getRand(15), getRand(15));
+                            });
+                    },
+                    // main loop method
+                    animate = () => {
+                        // camera rotation update
+                        const mouseXProp = 1 - ((mouseX / canvas.width) * 1.4 - 0.2),
+                            mouseYProp = (mouseY / canvas.height) * 1.4 - 0.2,
+                            movementX = Math.max(0, Math.min(1, mouseXProp)) * Math.PI * 2 - Math.PI,
+                            movementY = (Math.max(0, Math.min(1, mouseYProp)) * Math.PI) / 2;
+                        camera.position.x = Math.sin(movementX) * Math.cos(movementY) * distanceFromZeroPoint;
+                        camera.position.z = Math.cos(movementX) * Math.cos(movementY) * distanceFromZeroPoint;
+                        camera.position.y = Math.sin(movementY) * distanceFromZeroPoint;
+                        camera.lookAt(scene.position);
+
+                        // physics update
+                        world.step();
+                        cubeR.position.copy(physCubeR.getPosition());
+                        cubeR.quaternion.copy(physCubeR.getQuaternion());
+                        cubeG.position.copy(physCubeG.getPosition());
+                        cubeG.quaternion.copy(physCubeG.getQuaternion());
+                        cubeB.position.copy(physCubeB.getPosition());
+                        cubeB.quaternion.copy(physCubeB.getQuaternion());
+
+                        // render
+                        renderer.render(scene, camera);
+                        requestAnimationFrame(animate);
+                    };
+
+                // set the last needed properties
+                renderer.setSize(canvas.width, canvas.height);
+                renderer.shadowMap.enabled = true;
+                renderer.shadowMapSoft = true;
+                renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+                scene.background = textureCube;
+                scene.add(light1);
+                light2.castShadow = true;
+                light2.shadow.mapSize.width = 4096;
+                light2.shadow.mapSize.height = 4096;
+                light2.shadow.camera.left = -1000;
+                light2.shadow.camera.right = 1000;
+                light2.shadow.camera.top = 1000;
+                light2.shadow.camera.bottom = -1000;
+                light2.shadow.camera.far = 3000;
+                light2.position.set(190, 200, 1000);
+                scene.add(light2);
+                ground.receiveShadow = true;
+                ground.position.set(0, -500, 0);
+                ground.material.map.repeat.set(4, 4);
+                ground.material.map.wrapT = ground.material.map.wrapS = THREE.RepeatWrapping;
+                ground.material.normalMap.map = renderer.capabilities.getMaxAnisotropy();
+                ground.material.normalMap.repeat.set(4, 4);
+                ground.material.normalMap.wrapT = ground.material.normalMap.wrapS = THREE.RepeatWrapping;
+                ground.material.normalMap.anisotropy = renderer.capabilities.getMaxAnisotropy();
+                scene.add(ground);
+                cubeR.castShadow = true;
+                cubeR.receiveShadow = true;
+                scene.add(cubeR);
+                cubeG.castShadow = true;
+                cubeG.receiveShadow = true;
+                scene.add(cubeG);
+                cubeB.castShadow = true;
+                cubeB.receiveShadow = true;
+                scene.add(cubeB);
+
+                // event listeners and init
+                document.addEventListener('mousemove', (event) => {
+                    mouseX = event.clientX;
+                    mouseY = event.clientY;
+                });
+                document.addEventListener(
+                    'wheel',
+                    (event) => {
+                        distanceFromZeroPoint += event.deltaY;
+                        event.preventDefault();
+                    },
+                    { passive: false }
+                );
+                canvas.addEventListener('click', () => throwCubes(), false);
+                animate();
+            });
+        </script>
+        <style>
+            * {
+                padding: 0;
+                margin: 0;
+                background-color: #000;
+                overscroll-behavior: none;
+                overflow: hidden;
+            }
+        </style>
+    </head>
+    <body>
+        <canvas id="logoCanvas"></canvas>
+    </body>
+</html>

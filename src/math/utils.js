@@ -48,7 +48,6 @@ function lookup(ix, v) {
             if (a0[0] !== a1[0]) {
                 m = abs((ix - a0[0]) / (a1[0] - a0[0]));
             }
-            // echo(">>",i,ix,a0[0],a1[0],";",m,a0[1],a1[1])
             if (m > 0) {
                 r = a0[1] * (1 - m) + a1[1] * m;
             } else {
