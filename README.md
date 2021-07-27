@@ -36,4 +36,10 @@ Some copyrights apply:
 ## License
 
 [The MIT License (MIT)](https://github.com/SebiTimeWaster/three-csg/blob/master/LICENSE)
-(unless specified otherwise)
+(unless specified otherwise)  
+
+# ALSO
+
+https://github.com/sermonis/three-csg-experimental  
+https://github.com/sermonis/three-csg-mesh  
+
